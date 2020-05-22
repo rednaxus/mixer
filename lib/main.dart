@@ -8,7 +8,7 @@ import './utility/fetch_exchange_data.dart';
 import 'package:page_transition/page_transition.dart';
 
 void main() => runApp(MaterialApp(
-    title: "BitView",
+    title: "Mixer",
     home: CryptoPortfolio(),
     theme: ThemeData(
         backgroundColor: Color.fromRGBO(64, 75, 96, 1),
@@ -181,7 +181,7 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
         key: _scaffoldState,
         appBar: AppBar(
           centerTitle: true,
-          title: Text("BitView"),
+          title: Text("Mixer"),
           actions: <Widget>[
             PopupMenuButton(
               itemBuilder: (context) => fiatListDrop,

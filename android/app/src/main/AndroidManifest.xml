@@ -8,7 +8,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="BitView"
+        android:label="Mixer"
         android:icon="@mipmap/ic_app">
         <activity
             android:name=".MainActivity"
