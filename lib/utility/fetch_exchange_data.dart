@@ -50,33 +50,22 @@ _hmacSha512(String message, String secret) {
 class Binance {
   String _apiKey;
   String _secret;
-  String _base = 'https://api.binance.com';
+  String _base;
 
-  Binance(String apiKey, String secret) {
+  Binance(String apiKey, String secret, [bool usOnly = true]) {
     this._apiKey = apiKey;
     this._secret = secret;
+    this._base = usOnly ? 'https://api.binance.us' : 'https://api.binance.com';
   }
 
   _response(request) async {
     try {
-      var response;
-      String timestamp =
-          "timestamp=" + new DateTime.now().millisecondsSinceEpoch.toString();
-      String query = request['query'] + '&' + timestamp;
+      String timestamp = "timestamp=${new DateTime.now().millisecondsSinceEpoch}";
+      String query = "${request['query']}&$timestamp";
       String signature = _hmacSha256(query, this._secret);
-      var url = 'https://api.binance.com' +
-          request['endPoint'] +
-          "?" +
-          query +
-          '&signature=' +
-          signature;
-
-      if (request['method'] == 'GET') {
-        response = await get(url, headers: {'X-MBX-APIKEY': this._apiKey});
-      } else {
-        response = await post(url, headers: {'X-MBX-APIKEY': this._apiKey});
-      }
-      return response;
+      var url = "$_base${request['endPoint']}?$query&signature=$signature";
+      return request['method'] == 'GET' ? await get(url, headers: {'X-MBX-APIKEY': this._apiKey})
+        : await post(url, headers: {'X-MBX-APIKEY': this._apiKey});
     } on Exception {
       return null;
     }
@@ -117,10 +106,9 @@ class Coinbase {
   _response(request) async {
     try {
       var timestamp = await get('https://api.coinbase.com/v2/time')
-          .then((res) => json.decode(res.body))
-          .then((res) => res['data']['epoch']);
-      String query =
-          timestamp.toString() + request['method'] + request['endPoint'];
+        .then((res) => json.decode(res.body))
+        .then((res) => res['data']['epoch']);
+      String query = timestamp.toString() + request['method'] + request['endPoint'];
       String signature = _hmacSha256(query, this._secret);
       var url = _base + request['endPoint'];
 
@@ -275,17 +263,13 @@ class Bittrex {
 
   _response(request) async {
     try {
-      String timestamp =
-          "nonce=" + new DateTime.now().millisecondsSinceEpoch.toString();
-      String url =
-          _base + request + '?' + 'apikey=$_apiKey' + '&' + 'nonce=$timestamp';
+      String timestamp = new DateTime.now().millisecondsSinceEpoch.toString();
+      String url = "$_base$request?apikey=$_apiKey&nonce=$timestamp";
       String signature = _hmacSha512(url, this._secret);
 
-      var response = await get(url, headers: {
+      return await get(url, headers: {
         'apisign': signature,
       });
-
-      return response;
     } on Exception {
       return null;
     }
