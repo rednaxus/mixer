@@ -226,17 +226,34 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
             SliverAppBar(
               expandedHeight: 100,
               backgroundColor: Colors.transparent,
-              flexibleSpace: Container(
-                child: Center(
-                  child: Text( "${this.totalValue.toStringAsFixed(2)} ${this._fiatCurrencySymbol}",
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold
-                    )
+              flexibleSpace: Card(
+                elevation: 10,
+                color: Colors.transparent,
+                margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(172, 35, 96, 0.9),
+                    borderRadius: BorderRadius.circular(16)
+                  ),
+                  child: ListView(
+                    children: [
+                      Center(
+                        child: Text( "${this.totalValue.toStringAsFixed(2)} ${this._fiatCurrencySymbol}",
+                          style: TextStyle( fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold )
+                        )
+                      ),
+                      Text('Bitcoin balance: 5011', style: Theme.of(context).textTheme.subtitle1),
+                      Text('Monero balance: 5.012', style: Theme.of(context).textTheme.subtitle1)
+                    ],
                   )
-                ),
+                )
               ),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, i) {
+                var exchange = this.exchangesList[i];
+                return _createBalanceCard(exchange, i);
+              }, childCount: this.exchangesList.length),
             ),
             SliverList(
               delegate: SliverChildBuilderDelegate((context, i) {
@@ -286,8 +303,8 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
           )
         ],
       ),
-      trailing:
-      Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0));
+      trailing: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0)
+    );
 
     var makeCard;
 
@@ -339,7 +356,8 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
           },
           borderRadius: BorderRadius.circular(20),
         ),
-      ));
+      )
+    );
 
     return makeCard;
   }

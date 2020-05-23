@@ -9,15 +9,14 @@ class WalletInformation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("build walletinformation");
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
             forceElevated: true,
             elevation: 4,
-            backgroundColor: Theme
-              .of(context)
-              .backgroundColor,
+            backgroundColor: Theme.of(context).backgroundColor,
             expandedHeight: 230,
             flexibleSpace: Container(
               child: Center(
