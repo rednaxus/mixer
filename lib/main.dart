@@ -115,6 +115,8 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
     this.exchangesList = json.decode(exchangesString);
 
     print(this._fiatCurrency);
+    print(this.exchangesList);
+
     /* displays totalValue and then updates its value */
 
     double _total = 0;
@@ -167,6 +169,13 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
     prefs.setString('exchangesList', exchangesString);
   }
 
+  _getBalancesByCoin() {
+    return exchangesList.fold([],(accum,exchange) {
+      return exchange.data['balances'].fold(accum,(accum,coin){
+
+      });
+    });
+  }
   @override
   void initState() {
     super.initState();
