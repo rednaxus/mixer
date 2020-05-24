@@ -7,12 +7,19 @@ import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import './utility/fetch_exchange_data.dart';
 import 'package:page_transition/page_transition.dart';
 
-void main() => runApp(MaterialApp(
+void main() => runApp(
+  MaterialApp(
     title: "Mixer",
     home: CryptoPortfolio(),
     theme: ThemeData(
-        backgroundColor: Color.fromRGBO(64, 75, 96, 1),
-        appBarTheme: AppBarTheme(color: Color.fromRGBO(64, 75, 96, .9)))));
+      backgroundColor: Color.fromRGBO(64, 75, 96, 1),
+      appBarTheme: AppBarTheme(color: Color.fromRGBO(64, 75, 96, .9)),
+      textTheme: TextTheme(
+        subtitle1: TextStyle(color: Colors.white, fontSize: 16.0),
+      )
+    )
+  )
+);
 
 class CryptoPortfolio extends StatefulWidget {
   @override
@@ -128,7 +135,8 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
         if (data != null && data is! String) {
           exchange['data'] = data;
           _total += double.parse(data['value']);
-        } else _handleError();
+        } else
+          _handleError();
       }
 
       switch (exchange['name']) {
@@ -157,10 +165,13 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
       _isLoadingInitial = false;
       _isLoading = false;
       this.exchangesList = this.exchangesList;
+      var balances = _getBalancesByCoin();
+      print('***$balances');
       this.totalValue = _total;
     });
     exchangesString = json.encode(this.exchangesList);
     prefs.setString('exchangesList', exchangesString);
+
   }
 
   _updateStorage() async {
@@ -170,12 +181,18 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
   }
 
   _getBalancesByCoin() {
-    return exchangesList.fold([],(accum,exchange) {
-      return exchange.data['balances'].fold(accum,(accum,coin){
-
+    return exchangesList == null ? [] : exchangesList.fold([], (accum, exchange) {
+      print('exchange $exchange');
+      return exchange['data']['balances'].fold(accum, (accum, coininfo) {
+        int foundIdx = accum.indexWhere((_) => _["currency"] == coininfo["currency"]);
+        if (foundIdx == -1) return accum..add(coininfo);
+        accum[foundIdx]["value"] = (double.parse(accum[foundIdx]["value"]) + double.parse(coininfo["value"])).toString();
+        accum[foundIdx]["amount"] = (double.parse(accum[foundIdx]["amount"]) + double.parse(coininfo["amount"])).toString();
+        return accum;
       });
     });
   }
+
   @override
   void initState() {
     super.initState();
@@ -184,8 +201,12 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
 
   @override
   Widget build(BuildContext context) {
+    var balances = _getBalancesByCoin();
+    print('****balances $balances');
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme
+        .of(context)
+        .backgroundColor,
       key: _scaffoldState,
       appBar: AppBar(
         centerTitle: true,
@@ -212,17 +233,14 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
               .then((val) => _loadExchangesList());
           },
         )),
-      body: _isLoadingInitial
-        ? Center(child: CircularProgressIndicator())
+      body: _isLoadingInitial ? Center(child: CircularProgressIndicator())
         : this.exchangesList.length < 1
         ? Center(
         child: Text(
           'No exchanges added',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-          ),
-        ))
+          style: TextStyle(color: Colors.white, fontSize: 15),
+        )
+      )
         : LiquidPullToRefresh(
         height: 100.0,
         showChildOpacityTransition: false,
@@ -244,25 +262,26 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
                     color: Color.fromRGBO(172, 35, 96, 0.9),
                     borderRadius: BorderRadius.circular(16)
                   ),
-                  child: ListView(
-                    children: [
-                      Center(
-                        child: Text( "${this.totalValue.toStringAsFixed(2)} ${this._fiatCurrencySymbol}",
-                          style: TextStyle( fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold )
-                        )
-                      ),
-                      Text('Bitcoin balance: 5011', style: Theme.of(context).textTheme.subtitle1),
-                      Text('Monero balance: 5.012', style: Theme.of(context).textTheme.subtitle1)
-                    ],
-                  )
+                  child: Center(
+                    child: Text("${this.totalValue.toStringAsFixed(2)} ${this._fiatCurrencySymbol}",
+                      style: TextStyle(fontSize: 30, color: Colors.white, fontWeight: FontWeight.bold)
+                    )
+                  ),
                 )
               ),
             ),
             SliverList(
               delegate: SliverChildBuilderDelegate((context, i) {
-                var exchange = this.exchangesList[i];
-                return _createBalanceCard(exchange, i);
-              }, childCount: this.exchangesList.length),
+                var balance = balances[i];
+                return Container(
+                  margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(172, 172, 96, 0.9),
+                    borderRadius: BorderRadius.circular(16)
+                  ),
+                  child: _createCoinBalanceCard(balance, i)// Text("${balance['currency']}:${balance['value']} ${balance['amount']}")
+                );
+              }, childCount: balances.length),
             ),
             SliverList(
               delegate: SliverChildBuilderDelegate((context, i) {
@@ -271,7 +290,9 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
               }, childCount: this.exchangesList.length),
             )
           ],
-        )));
+        )
+      )
+    );
   }
 
   _createBalanceCard(exchange, index) {
@@ -280,31 +301,28 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
       leading: Container(
         padding: EdgeInsets.only(right: 12.0),
         decoration: new BoxDecoration(
-          border: new Border(
-            right: new BorderSide(width: 1.0, color: Colors.white24))),
+          border: new Border(right: new BorderSide(width: 1.0, color: Colors.white24))
+        ),
         child: Image.asset(
           exchange['icon'],
           height: 40,
           width: 40,
         ),
       ),
-      title: Text(
-        exchange['name'],
-        style: TextStyle(
-          color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
+      title: Text(exchange['name'],
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
       ),
       subtitle: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          Icon(
-            Icons.account_balance_wallet,
+          Icon(Icons.account_balance_wallet,
             color: Colors.yellowAccent,
             size: 15,
           ),
           exchange['data'] != null && exchange['data']['value'] != null ? Text(
             " Amount: ${exchange['data']['value']} ${this._fiatCurrencySymbol}",
             style: TextStyle(color: Colors.white))
-          : Container(
+            : Container(
             margin: EdgeInsets.only(left: 10),
             child: CircularProgressIndicator(),
             height: 10,
@@ -369,5 +387,39 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
     );
 
     return makeCard;
+  }
+
+  _createCoinBalanceCard(balance, index) {
+    return Card(
+      elevation: 10,
+      color: Colors.transparent,
+      margin: new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      child: ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+        leading: Container(
+          padding: EdgeInsets.only(right: 12.0),
+          decoration: new BoxDecoration(
+            border: new Border(right: new BorderSide(width: 1.0, color: Colors.white24))
+          ),
+          child: Image.network(
+            balance['icon'],
+            height: 40,
+            width: 40,
+          ),
+        ),
+        title: Text(balance['currency'],
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
+        ),
+        subtitle: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              "Amount: ${double.parse(balance['amount']).toStringAsFixed(4)} Value: ${double.parse(balance['value']).toStringAsFixed(2)} ${this._fiatCurrencySymbol}",
+              style: TextStyle(color: Colors.white))
+          ],
+        ),
+        trailing: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 30.0)
+      )
+    );
   }
 }

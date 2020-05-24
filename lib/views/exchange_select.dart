@@ -42,6 +42,13 @@ class ExchangeSelect extends StatelessWidget {
       'api_key': null,
       'secret': null,
       'data': null
+    },
+    {
+      'name': 'Kraken',
+      'icon': 'assets/kraken.png',
+      'api_key': null,
+      'secret': null,
+      'data': null
     }
   ];
 

@@ -58,6 +58,7 @@ flutter:
     - assets/bittrex.jpg
     - assets/mercatox.png
     - assets/hitbtc.png
+    - assets/kraken.png
 
 flutter_icons:
   android: ic_app
