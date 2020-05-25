@@ -8,13 +8,18 @@ import 'dart:convert';
 const String URL = 'https://api.kraken.com';
 const API_VERSION = '0';
 
-class KrakenApi {
+class Kraken {
   final String apiKey;
   final String secretKey;
 
   http.Client client = http.Client();
 
-  KrakenApi(this.apiKey, this.secretKey);
+  Kraken(this.apiKey, this.secretKey);
+
+
+  getBalance() async {
+    return call(Methods.BALANCE);
+  }
 
   Future<String> call(Methods method, {Map<String, String> parameters}) {
     if (method._private) {
@@ -90,6 +95,7 @@ class KrakenApi {
       },
       body: postData,
     );
+    print('*** got callback from kraken ${response.body}');
     return response.body;
   }
 }

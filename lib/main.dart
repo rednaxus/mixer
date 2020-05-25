@@ -158,6 +158,9 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
         case 'HitBTC':
           await _fetchExchange(fetchHitBtc, this._fiatCurrency);
           break;
+        case 'Kraken':
+          await _fetchExchange(fetchKraken, this._fiatCurrency);
+          break;
       }
     }
 
@@ -183,7 +186,7 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
   _getBalancesByCoin() {
     return exchangesList == null ? [] : exchangesList.fold([], (accum, exchange) {
       print('exchange $exchange');
-      return exchange['data']['balances'].fold(accum, (accum, coininfo) {
+      return exchange['data'] == null ? accum : exchange['data']['balances'].fold(accum, (accum, coininfo) {
         int foundIdx = accum.indexWhere((_) => _["currency"] == coininfo["currency"]);
         if (foundIdx == -1) return accum..add(coininfo);
         accum[foundIdx]["value"] = (double.parse(accum[foundIdx]["value"]) + double.parse(coininfo["value"])).toString();

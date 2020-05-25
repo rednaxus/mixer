@@ -140,6 +140,37 @@ fetchHitBtc(exchange, fiat) async {
   return data;
 }
 
+fetchKraken(exchange, fiat) async {
+  final APIKEY = exchange['api_key'];
+  final SECRET = exchange['secret'];
+  print('***fetching kraken');
+  final kraken = new Kraken(APIKEY, SECRET);
+  var balances = await kraken.getBalance();
+  print('*** got kraken');
+
+  if (balances == null) {
+    return null;
+  }
+
+  print(balances);
+
+  var wallets = [];
+
+  for (var balance in balances) {
+    //print(balance['Balance']);
+    wallets.add({
+      'currency': balance['currency'],
+      'amount': balance['available'],
+    });
+  }
+
+  var data = {'balances': wallets, 'value': 0};
+
+  data = await _calculateAmount(data, fiat);
+
+  return data;
+}
+
 fetchMercatox(exchange, fiat) async {
   var balances = exchange['data']['balances'];
   var wallets = [];
