@@ -18,7 +18,16 @@ class Kraken {
 
 
   getBalance() async {
-    return call(Methods.BALANCE);
+    dynamic response = await call(Methods.BALANCE);
+    if (response != null) {
+      var result = json.decode(response)['result'];
+      var balance = [];
+      for (var k in result.entries){
+        balance.add({"currency":k.key.substring(1), "available":k.value} );
+      }
+      return balance;
+    }
+    return null;
   }
 
   Future<String> call(Methods method, {Map<String, String> parameters}) {
@@ -95,7 +104,6 @@ class Kraken {
       },
       body: postData,
     );
-    print('*** got callback from kraken ${response.body}');
     return response.body;
   }
 }

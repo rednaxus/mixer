@@ -169,7 +169,6 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
       _isLoading = false;
       this.exchangesList = this.exchangesList;
       var balances = _getBalancesByCoin();
-      print('***$balances');
       this.totalValue = _total;
     });
     exchangesString = json.encode(this.exchangesList);
@@ -185,7 +184,6 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
 
   _getBalancesByCoin() {
     return exchangesList == null ? [] : exchangesList.fold([], (accum, exchange) {
-      print('exchange $exchange');
       return exchange['data'] == null ? accum : exchange['data']['balances'].fold(accum, (accum, coininfo) {
         int foundIdx = accum.indexWhere((_) => _["currency"] == coininfo["currency"]);
         if (foundIdx == -1) return accum..add(coininfo);
@@ -205,7 +203,6 @@ class CryptoPortfolioState extends State<CryptoPortfolio> {
   @override
   Widget build(BuildContext context) {
     var balances = _getBalancesByCoin();
-    print('****balances $balances');
     return Scaffold(
       backgroundColor: Theme
         .of(context)

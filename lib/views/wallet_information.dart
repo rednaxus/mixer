@@ -9,7 +9,6 @@ class WalletInformation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("build walletinformation");
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[

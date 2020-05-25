@@ -51,7 +51,6 @@ fetchCoinbase(exchange, fiat) async {
   var data = {'balances': wallets, 'value': 0};
 
   data = await _calculateAmount(data, fiat);
-  print(data);
 
   return data;
 }
@@ -96,7 +95,6 @@ fetchBittrex(exchange, fiat) async {
   var wallets = [];
 
   for (var balance in balances) {
-    //print(balance['Balance']);
     wallets.add({
       'currency': balance['Currency'],
       'amount': balance['Balance']
@@ -121,12 +119,9 @@ fetchHitBtc(exchange, fiat) async {
     return null;
   }
 
-  print(balances);
-
   var wallets = [];
 
   for (var balance in balances) {
-    //print(balance['Balance']);
     wallets.add({
       'currency': balance['currency'],
       'amount': balance['available'],
@@ -143,29 +138,22 @@ fetchHitBtc(exchange, fiat) async {
 fetchKraken(exchange, fiat) async {
   final APIKEY = exchange['api_key'];
   final SECRET = exchange['secret'];
-  print('***fetching kraken');
   final kraken = new Kraken(APIKEY, SECRET);
   var balances = await kraken.getBalance();
-  print('*** got kraken');
 
   if (balances == null) {
     return null;
   }
 
-  print(balances);
-
   var wallets = [];
 
   for (var balance in balances) {
-    //print(balance['Balance']);
     wallets.add({
       'currency': balance['currency'],
       'amount': balance['available'],
     });
   }
-
   var data = {'balances': wallets, 'value': 0};
-
   data = await _calculateAmount(data, fiat);
 
   return data;
@@ -179,7 +167,6 @@ fetchMercatox(exchange, fiat) async {
     for (var balance in balances) {
       if (balance['currency'] == '' || balance['amount'] == '') return null;
 
-      //print(balance['Balance']);
       wallets.add({
         'currency': balance['currency'],
         'amount': balance['amount'],
@@ -249,8 +236,6 @@ _calculateAmount(data, fiat) async {
         icon = response[0]['image'];
       }
       result += eur;
-      print(result);
-      print(icon);
       wallet['icon'] = icon;
     }
 
