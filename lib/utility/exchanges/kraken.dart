@@ -23,7 +23,7 @@ class Kraken {
       var result = json.decode(response)['result'];
       var balance = [];
       for (var k in result.entries){
-        balance.add({"currency":k.key.substring(1), "available":k.value} );
+        balance.add({"currency": k.key == 'XXBT' ? 'BTC' : k.key.substring(1), "available":k.value} );
       }
       return balance;
     }
